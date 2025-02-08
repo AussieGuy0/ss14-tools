@@ -2,12 +2,11 @@
 
 
 function renderReactants(reactants) {
-    const pluralizeUnits = (amount) => amount > 1 ? 'units' : 'unit'
     const ul = document.createElement('ul')
 
     reactants.forEach(r => {
         const li = document.createElement('li')
-        li.textContent = `${r.id}: ${r.amount} ${pluralizeUnits(r.amount)}`
+        li.textContent = `${r.amount}  ${r.id}`
         ul.appendChild(li)
     });
 
@@ -123,8 +122,8 @@ function renderSearchResults(results, renderOptions) {
 
     results.forEach(result => {
         const item = result.item
-        const div = document.createElement('div')
-        div.className = 'result-item'
+        const resultItemDiv = document.createElement('div')
+        resultItemDiv.className = 'result-item'
 
         const titleContainer = document.createElement('div')
         titleContainer.className = 'result-item-title-container'
@@ -148,42 +147,43 @@ function renderSearchResults(results, renderOptions) {
         }
 
         const reactants = renderReactants(item.reactants)
-        div.appendChild(titleContainer)
-        div.appendChild(reactants)
+        resultItemDiv.appendChild(titleContainer)
+        resultItemDiv.appendChild(reactants)
 
         if (renderOptions.includeOutputProduct) {
-            const productsContainer = document.createElement('div')
-            productsContainer.className = 'result-item-products'
+            const effectsContainerDiv = document.createElement('div')
 
             item.products.forEach(product => {
-                const productDiv = document.createElement('div')
-                productDiv.className = 'result-item-product'
-                
-                const productHeader = document.createElement('div')
-                productHeader.className = 'product-header'
-                productHeader.textContent = `Output: ${product.amount} ${product.id}`
-                productDiv.appendChild(productHeader)
+                const productOutput = document.createElement('div')
+                productOutput.textContent = `Output: ${product.amount} ${product.id}`
+                resultItemDiv.appendChild(productOutput);
 
                 if (product.reagentData) {
+                    const effectsDiv = document.createElement('div')
+                    effectsDiv.className = 'result-item-effects'
+                    const productHeader = document.createElement('div')
+                    productHeader.className = 'result-item-effects-header'
+                    productHeader.textContent = `Effects`
+                    effectsDiv.appendChild(productHeader)
                     if (product.reagentData.metabolisms) {
                         Object.entries(product.reagentData.metabolisms).forEach(([key, value]) => {
                             const metabolismDiv = document.createElement('div')
                             metabolismDiv.className = 'metabolism-container'
                             
-                            const effectsDiv = renderMetabolismEffects(value)
-                            metabolismDiv.appendChild(effectsDiv)
+                            const metabolismEffectsDiv = renderMetabolismEffects(value)
+                            metabolismDiv.appendChild(metabolismEffectsDiv)
                             
-                            productDiv.appendChild(metabolismDiv)
+                            effectsDiv.appendChild(metabolismDiv)
                         })
                     }
+                  effectsContainerDiv.appendChild(effectsDiv)
                 }
 
-                productsContainer.appendChild(productDiv)
             })
 
-            div.appendChild(productsContainer)
+            resultItemDiv.appendChild(effectsContainerDiv)
         }
-        resultsContainer.appendChild(div)
+        resultsContainer.appendChild(resultItemDiv)
     });
 
     if (results.length === 0) {
